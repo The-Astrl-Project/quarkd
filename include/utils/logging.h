@@ -11,10 +11,9 @@
 
 // Header Declarations
 // ----------------------------------------------------------------
-#include <unistd.h>
+
 // ---
-#include "include/init.h"
-#include "include/utils/logging.h"
+
 // ---
 
 // ----------------------------------------------------------------
@@ -23,10 +22,9 @@
 
 // File Docstring
 // --------------------------------
-// QuarkD || init.c <-> include/init.h
+// QuarkD || logging.c <-> include/utils/logging.h
 //
-// Entrypoint of QuarkD. All QuarkD subsystems are initialized here.
-// This file simply works as an over-engineered "int main".
+// Logs messages to /dev/console.
 //
 // @author @MaxineToTheStars <https://github.com/MaxineToTheStars>
 // ----------------------------------------------------------------
@@ -40,24 +38,19 @@
 // Variable Definitions
 
 // Main
-int main(int argc, char **argv)
-{
-    // Instance the logging module
-    logging_initialize();
-
-    // Log some messages
-    log_msg("\nHello");
-    log_msg("\bWorld");
-
-    // Stop from killing PID 1
-    while (1)
-    {
-        // Sleep
-        sleep(1);
-
-        // Log
-        log_msg("Please Work!");
-    }
-}
 
 // Methods
+/**
+ * Initializes the logging module.
+ *
+ * @return void
+ */
+void logging_initialize();
+
+/**
+ * Logs a formatted message.
+ *
+ * @param message The message to log
+ * @return void
+ */
+void log_msg(const char *message);

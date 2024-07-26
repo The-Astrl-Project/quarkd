@@ -11,9 +11,10 @@
 
 // Header Declarations
 // ----------------------------------------------------------------
+#include <fcntl.h>
 #include <unistd.h>
+#include <string.h>
 // ---
-#include "include/init.h"
 #include "include/utils/logging.h"
 // ---
 
@@ -23,10 +24,9 @@
 
 // File Docstring
 // --------------------------------
-// QuarkD || init.c <-> include/init.h
+// QuarkD || logging.c <-> include/utils/logging.h
 //
-// Entrypoint of QuarkD. All QuarkD subsystems are initialized here.
-// This file simply works as an over-engineered "int main".
+// Logs messages to /dev/console.
 //
 // @author @MaxineToTheStars <https://github.com/MaxineToTheStars>
 // ----------------------------------------------------------------
@@ -38,26 +38,29 @@
 // Type Definitions
 
 // Variable Definitions
+int _consoleFileDescriptor;
 
 // Main
-int main(int argc, char **argv)
-{
-    // Instance the logging module
-    logging_initialize();
-
-    // Log some messages
-    log_msg("\nHello");
-    log_msg("\bWorld");
-
-    // Stop from killing PID 1
-    while (1)
-    {
-        // Sleep
-        sleep(1);
-
-        // Log
-        log_msg("Please Work!");
-    }
-}
 
 // Methods
+void logging_initialize()
+{
+    // Attempt to open /dev/console
+    _consoleFileDescriptor = open("/dev/console", O_WRONLY | O_NONBLOCK);
+
+    // TODO: Maybe error handling?
+    return;
+}
+
+void log_msg(const char *message)
+{
+    // Check we have a valid file descriptor
+    if (_consoleFileDescriptor < 0)
+    {
+        // Early return
+        return;
+    }
+
+    // Write
+    write(_consoleFileDescriptor, message, strlen(message));
+}
