@@ -11,23 +11,23 @@
 
 // Header Declarations
 // ----------------------------------------------------------------
-#include <unistd.h>
+
 // ---
-#include "include/init.h"
-#include "include/utils/logging.h"
-#include "include/modules/mount.h"
+
 // ---
 
 // ----------------------------------------------------------------
 
 // Macro Definitions
+#define MDL_MOUNT_FSTAB_FILEPATH "/etc/fstab"
+#define MDL_MOUNT_MAX_FSTAB_ENTRIES 16
 
 // File Docstring
 // --------------------------------
-// QuarkD || init.c <-> include/init.h
+// QuarkD || modules/mount.c <-> include/modules/mount.h
 //
-// Entrypoint of QuarkD. All QuarkD subsystems are initialized here.
-// This file simply works as an over-engineered "int main".
+// Handles the mounting of the root filesystem and other
+// mounting related tasks.
 //
 // @author @MaxineToTheStars <https://github.com/MaxineToTheStars>
 // ----------------------------------------------------------------
@@ -41,23 +41,19 @@
 // Variable Definitions
 
 // Main
-int main(int argc, char **argv)
-{
-    // Instance the logging module
-    logging_initialize();
-
-    // Mount the root filesystem
-    mount_rootfs();
-
-    // Stop from killing PID 1
-    while (1)
-    {
-        // Sleep
-        sleep(1);
-
-        // Log
-        log_msg("Status: Idle");
-    }
-}
 
 // Methods
+/**
+ * Mounts the root filesystem as defined in /etc/fstab.
+ *
+ * @return void
+ */
+void mount_rootfs();
+
+/**
+ * Reads the fstab file and stores the
+ * found entries.
+ *
+ * @return void
+ */
+void _read_fstab();

@@ -14,6 +14,7 @@
 #include <time.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <errno.h>
 #include <unistd.h>
 #include <string.h>
 // ---
@@ -49,24 +50,30 @@ int _consoleFileDescriptor;
 void logging_initialize()
 {
     // Attempt to open /dev/console
-    _consoleFileDescriptor = open("/dev/console", O_WRONLY | O_NONBLOCK);
+    _consoleFileDescriptor = open(LOG_CONSOLE_PATH, O_WRONLY | O_NONBLOCK);
+
+    // Capture the error value
+    int err = errno;
 
     // Start internal clock
     _internalLogClock = clock();
 
-    // TODO: Maybe error handling?
-    return;
+    // Rudimentary error handling
+    if (_consoleFileDescriptor < 0)
+    {
+        // Allocate a new message
+        char message[64];
+
+        // Format the new message
+        sprintf(message, "Access to /dev/console was denied || Reason: %i", err);
+
+        // Log the new message
+        log_wrn(message);
+    }
 }
 
 void log_msg(const char *message)
 {
-    // Check we have a valid file descriptor
-    if (_consoleFileDescriptor < 0)
-    {
-        // Early return
-        return;
-    }
-
     // Get CPU timestamp
     double timestamp = (((double)(clock() - _internalLogClock)) / CLOCKS_PER_SEC);
 
@@ -76,19 +83,22 @@ void log_msg(const char *message)
     // Modify log message
     sprintf(log, "[ %s LOG %s @ %s %lf %s ] %s\n", LOG_MSG_COLOR, LOG_COLOR_RESET, LOG_TIME_COLOR, timestamp, LOG_COLOR_RESET, message);
 
+    // Check we have a valid file descriptor
+    if (_consoleFileDescriptor < 0)
+    {
+        // Print to stdout
+        printf(log);
+
+        // Return
+        return;
+    }
+
     // Write
     write(_consoleFileDescriptor, log, strlen(log));
 }
 
 void log_wrn(const char *message)
 {
-    // Check we have a valid file descriptor
-    if (_consoleFileDescriptor < 0)
-    {
-        // Early return
-        return;
-    }
-
     // Get CPU timestamp
     double timestamp = (((double)(clock() - _internalLogClock)) / CLOCKS_PER_SEC);
 
@@ -98,19 +108,22 @@ void log_wrn(const char *message)
     // Modify log message
     sprintf(log, "[ %s WRN %s @ %s %lf %s ] %s\n", LOG_WRN_COLOR, LOG_COLOR_RESET, LOG_TIME_COLOR, timestamp, LOG_COLOR_RESET, message);
 
+    // Check we have a valid file descriptor
+    if (_consoleFileDescriptor < 0)
+    {
+        // Print to stdout
+        printf(log);
+
+        // Return
+        return;
+    }
+
     // Write
     write(_consoleFileDescriptor, log, strlen(log));
 }
 
 void log_err(const char *message)
 {
-    // Check we have a valid file descriptor
-    if (_consoleFileDescriptor < 0)
-    {
-        // Early return
-        return;
-    }
-
     // Get CPU timestamp
     double timestamp = (((double)(clock() - _internalLogClock)) / CLOCKS_PER_SEC);
 
@@ -119,6 +132,16 @@ void log_err(const char *message)
 
     // Modify log message
     sprintf(log, "[ %s ERR %s @ %s %lf %s ] %s\n", LOG_ERR_COLOR, LOG_COLOR_RESET, LOG_TIME_COLOR, timestamp, LOG_COLOR_RESET, message);
+
+    // Check we have a valid file descriptor
+    if (_consoleFileDescriptor < 0)
+    {
+        // Print to stdout
+        printf(log);
+
+        // Return
+        return;
+    }
 
     // Write
     write(_consoleFileDescriptor, log, strlen(log));

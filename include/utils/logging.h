@@ -19,12 +19,13 @@
 // ----------------------------------------------------------------
 
 // Macro Definitions
-#define LOG_MSG_COLOR "\033[0;32m"  // Green
-#define LOG_WRN_COLOR "\033[0;33m"  // Yellow
-#define LOG_ERR_COLOR "\033[0;31m"  // Red
-#define LOG_TIME_COLOR "\033[0;35m" // Magenta
-#define LOG_COLOR_RESET "\033[0m"   // Clear/Reset
-#define LOG_MAX_LOG_SIZE 1024
+#define LOG_MSG_COLOR "\033[0;32m"      // Green
+#define LOG_WRN_COLOR "\033[0;33m"      // Yellow
+#define LOG_ERR_COLOR "\033[0;31m"      // Red
+#define LOG_TIME_COLOR "\033[0;35m"     // Magenta
+#define LOG_COLOR_RESET "\033[0m"       // Clear/Reset
+#define LOG_MAX_LOG_SIZE 1024           // 1024 Bytes
+#define LOG_CONSOLE_PATH "/dev/console" // Console device
 
 // File Docstring
 // --------------------------------

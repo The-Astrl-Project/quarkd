@@ -11,9 +11,10 @@
 
 // Header Declarations
 // ----------------------------------------------------------------
-#include <unistd.h>
+#include <stdio.h>
+#include <mntent.h>
+#include <string.h>
 // ---
-#include "include/init.h"
 #include "include/utils/logging.h"
 #include "include/modules/mount.h"
 // ---
@@ -24,10 +25,10 @@
 
 // File Docstring
 // --------------------------------
-// QuarkD || init.c <-> include/init.h
+// QuarkD || modules/mount.c <-> include/modules/mount.h
 //
-// Entrypoint of QuarkD. All QuarkD subsystems are initialized here.
-// This file simply works as an over-engineered "int main".
+// Handles the mounting of the root filesystem and other
+// mounting related tasks.
 //
 // @author @MaxineToTheStars <https://github.com/MaxineToTheStars>
 // ----------------------------------------------------------------
@@ -39,25 +40,42 @@
 // Type Definitions
 
 // Variable Definitions
+struct mntent _foundEntires[MDL_MOUNT_MAX_FSTAB_ENTRIES];
 
 // Main
-int main(int argc, char **argv)
-{
-    // Instance the logging module
-    logging_initialize();
-
-    // Mount the root filesystem
-    mount_rootfs();
-
-    // Stop from killing PID 1
-    while (1)
-    {
-        // Sleep
-        sleep(1);
-
-        // Log
-        log_msg("Status: Idle");
-    }
-}
 
 // Methods
+void mount_rootfs()
+{
+    // Read fstab
+    _read_fstab();
+
+    // Lookup UUIDs
+
+    // Mount
+}
+
+void _read_fstab()
+{
+    // Open /etc/fstab
+    FILE *fstabStream = setmntent(MDL_MOUNT_FSTAB_FILEPATH, "r");
+
+    // Set buffer index
+    int currentIndex = 0;
+
+    // Iterate through the fstab
+    struct mntent *entry;
+    while (((entry = getmntent(fstabStream)) != NULL) && (currentIndex != MDL_MOUNT_MAX_FSTAB_ENTRIES))
+    {
+        // Add the entry
+        _foundEntires[currentIndex] = *entry;
+
+        // Increment
+        currentIndex++;
+    }
+
+    // Log
+    char msg[64];
+    sprintf(msg, "Sample Data: %s", _foundEntires[1].mnt_fsname);
+    log_msg(msg);
+}

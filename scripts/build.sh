@@ -11,7 +11,7 @@
 #!/usr/bin/env bash
 
 # Constants
-declare -r POSSIBLE_OPTIONS=":ghcb"
+declare -r POSSIBLE_OPTIONS=":ghcbi"
 
 # Main
 function main()
@@ -28,15 +28,19 @@ function main()
                 help
             ;;
             c)
-                # Clean build
+                # Clean the build directory
                 clean
             ;;
             b)
-                # Build
+                # Build from source
                 build
             ;;
+            i)
+                # Install
+                install
+            ;;
             ?)
-                # Invalid
+                # Invalid argument/option
                 echo "Invalid argument!"
                 echo
 
@@ -72,6 +76,7 @@ function help()
     echo "h     Print this help message"
     echo "c     Clean the build directory"
     echo "b     Build the project"
+    echo "i     Install the project"
     echo
 }
 
@@ -112,6 +117,30 @@ function build()
 
     # Re-run
     build
+}
+
+function install()
+{
+    # Check if ./build exists
+    if [ -d ./build ]; then
+        # Switch to ./build
+        cd ./build
+
+        # Install the binary to /usr/bin
+        sudo cp ./quarkd /usr/bin/quarkd
+
+        # Replace /sbin/init symlink
+        sudo ln -sfn /usr/bin/quarkd /sbin/init
+
+        # Update initramfs
+        sudo /sbin/update-initramfs -u
+
+        # Exit
+        exit
+    fi
+
+    # Log
+    echo "The project must be built first before installing!"
 }
 
 # Execute
