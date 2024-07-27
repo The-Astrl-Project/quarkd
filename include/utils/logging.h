@@ -19,11 +19,12 @@
 // ----------------------------------------------------------------
 
 // Macro Definitions
-#define LOG_COLOR_RESET "\033[0m"   // Clear/Reset
 #define LOG_MSG_COLOR "\033[0;32m"  // Green
 #define LOG_WRN_COLOR "\033[0;33m"  // Yellow
 #define LOG_ERR_COLOR "\033[0;31m"  // Red
 #define LOG_TIME_COLOR "\033[0;35m" // Magenta
+#define LOG_COLOR_RESET "\033[0m"   // Clear/Reset
+#define LOG_MAX_LOG_SIZE 1024
 
 // File Docstring
 // --------------------------------
@@ -47,8 +48,10 @@
 // Methods
 /**
  * Initializes the logging module.
- *
  * @return void
+ * @note Each log message has a max length of ``LOG_MAX_LOG_SIZE`` - 45 bytes
+ * which are reserved for formatting. By default ``LOG_MAX_LOG_SIZE`` *should*
+ * be 1024 leaving you around 979 bytes of free space.
  */
 void logging_initialize();
 

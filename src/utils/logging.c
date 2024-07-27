@@ -71,7 +71,7 @@ void log_msg(const char *message)
     double timestamp = (((double)(clock() - _internalLogClock)) / CLOCKS_PER_SEC);
 
     // Allocate a log message
-    char log[256];
+    char log[LOG_MAX_LOG_SIZE];
 
     // Modify log message
     sprintf(log, "[ %s LOG %s @ %s %lf %s ] %s\n", LOG_MSG_COLOR, LOG_COLOR_RESET, LOG_TIME_COLOR, timestamp, LOG_COLOR_RESET, message);
@@ -93,7 +93,7 @@ void log_wrn(const char *message)
     double timestamp = (((double)(clock() - _internalLogClock)) / CLOCKS_PER_SEC);
 
     // Allocate a log message
-    char log[256];
+    char log[LOG_MAX_LOG_SIZE];
 
     // Modify log message
     sprintf(log, "[ %s WRN %s @ %s %lf %s ] %s\n", LOG_WRN_COLOR, LOG_COLOR_RESET, LOG_TIME_COLOR, timestamp, LOG_COLOR_RESET, message);
@@ -115,7 +115,7 @@ void log_err(const char *message)
     double timestamp = (((double)(clock() - _internalLogClock)) / CLOCKS_PER_SEC);
 
     // Allocate a log message
-    char log[256];
+    char log[LOG_MAX_LOG_SIZE];
 
     // Modify log message
     sprintf(log, "[ %s ERR %s @ %s %lf %s ] %s\n", LOG_ERR_COLOR, LOG_COLOR_RESET, LOG_TIME_COLOR, timestamp, LOG_COLOR_RESET, message);
