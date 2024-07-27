@@ -54,3 +54,19 @@ void logging_initialize();
  * @return void
  */
 void log_msg(const char *message);
+
+/**
+ * Logs a formatted warning message.
+ *
+ * @param message The message to log
+ * @return void
+ */
+void log_wrn(const char *message);
+
+/**
+ * Logs a formatted error message.
+ *
+ * @param message The message to log
+ * @return void
+ */
+void log_err(const char *message);

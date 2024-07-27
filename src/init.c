@@ -46,8 +46,10 @@ int main(int argc, char **argv)
     logging_initialize();
 
     // Log some messages
-    log_msg("\nHello");
-    log_msg("\bWorld");
+    log_msg("Hello");
+    log_msg("World");
+    log_wrn("Sample Warning Message");
+    log_err("Sample Error Message");
 
     // Stop from killing PID 1
     while (1)
@@ -56,7 +58,7 @@ int main(int argc, char **argv)
         sleep(1);
 
         // Log
-        log_msg("Please Work!");
+        log_wrn("Kernel Panic Imminent");
     }
 }
 

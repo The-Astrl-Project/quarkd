@@ -11,7 +11,9 @@
 
 // Header Declarations
 // ----------------------------------------------------------------
+#include <time.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 // ---
@@ -38,6 +40,7 @@
 // Type Definitions
 
 // Variable Definitions
+clock_t _internalLogClock;
 int _consoleFileDescriptor;
 
 // Main
@@ -47,6 +50,9 @@ void logging_initialize()
 {
     // Attempt to open /dev/console
     _consoleFileDescriptor = open("/dev/console", O_WRONLY | O_NONBLOCK);
+
+    // Start internal clock
+    _internalLogClock = clock();
 
     // TODO: Maybe error handling?
     return;
@@ -61,6 +67,59 @@ void log_msg(const char *message)
         return;
     }
 
+    // Get CPU timestamp
+    double timestamp = (((double)(clock() - _internalLogClock)) / CLOCKS_PER_SEC);
+
+    // Allocate a log message
+    char log[256];
+
+    // Modify log message
+    sprintf(log, "[ LOG @ %lf ] %s\n", timestamp, message);
+
     // Write
-    write(_consoleFileDescriptor, message, strlen(message));
+    write(_consoleFileDescriptor, log, strlen(log));
+}
+
+void log_wrn(const char *message)
+{
+    // Check we have a valid file descriptor
+    if (_consoleFileDescriptor < 0)
+    {
+        // Early return
+        return;
+    }
+
+    // Get CPU timestamp
+    double timestamp = (((double)(clock() - _internalLogClock)) / CLOCKS_PER_SEC);
+
+    // Allocate a log message
+    char log[256];
+
+    // Modify log message
+    sprintf(log, "[ WRN @ %lf ] %s\n", timestamp, message);
+
+    // Write
+    write(_consoleFileDescriptor, log, strlen(log));
+}
+
+void log_err(const char *message)
+{
+    // Check we have a valid file descriptor
+    if (_consoleFileDescriptor < 0)
+    {
+        // Early return
+        return;
+    }
+
+    // Get CPU timestamp
+    double timestamp = (((double)(clock() - _internalLogClock)) / CLOCKS_PER_SEC);
+
+    // Allocate a log message
+    char log[256];
+
+    // Modify log message
+    sprintf(log, "[ ERR @ %lf ] %s\n", timestamp, message);
+
+    // Write
+    write(_consoleFileDescriptor, log, strlen(log));
 }
