@@ -74,7 +74,7 @@ void log_msg(const char *message)
     char log[256];
 
     // Modify log message
-    sprintf(log, "[ LOG @ %lf ] %s\n", timestamp, message);
+    sprintf(log, "[ %s LOG %s @ %s %lf %s ] %s\n", LOG_MSG_COLOR, LOG_COLOR_RESET, LOG_TIME_COLOR, timestamp, LOG_COLOR_RESET, message);
 
     // Write
     write(_consoleFileDescriptor, log, strlen(log));
@@ -96,7 +96,7 @@ void log_wrn(const char *message)
     char log[256];
 
     // Modify log message
-    sprintf(log, "[ WRN @ %lf ] %s\n", timestamp, message);
+    sprintf(log, "[ %s WRN %s @ %s %lf %s ] %s\n", LOG_WRN_COLOR, LOG_COLOR_RESET, LOG_TIME_COLOR, timestamp, LOG_COLOR_RESET, message);
 
     // Write
     write(_consoleFileDescriptor, log, strlen(log));
@@ -118,7 +118,7 @@ void log_err(const char *message)
     char log[256];
 
     // Modify log message
-    sprintf(log, "[ ERR @ %lf ] %s\n", timestamp, message);
+    sprintf(log, "[ %s ERR %s @ %s %lf %s ] %s\n", LOG_ERR_COLOR, LOG_COLOR_RESET, LOG_TIME_COLOR, timestamp, LOG_COLOR_RESET, message);
 
     // Write
     write(_consoleFileDescriptor, log, strlen(log));
