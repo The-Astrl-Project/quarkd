@@ -75,7 +75,15 @@ void _read_fstab()
     }
 
     // Log
-    char msg[64];
-    sprintf(msg, "Sample Data: %s", _foundEntires[1].mnt_fsname);
-    log_msg(msg);
+    for (int i = 0; i < (sizeof(_foundEntires) / sizeof(struct mntent)); i++)
+    {
+        // Allocate message
+        char msg[256];
+
+        // Format message
+        sprintf(msg, "Name: %s || Dir: %s", _foundEntires[i].mnt_fsname, _foundEntires[i].mnt_dir);
+
+        // Log
+        log_msg(msg);
+    }
 }
