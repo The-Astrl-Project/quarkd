@@ -11,9 +11,7 @@
 
 // Header Declarations
 // ----------------------------------------------------------------
-#include <stdio.h>
-#include <mntent.h>
-#include <string.h>
+#include <libmount/libmount.h>
 // ---
 #include "include/utils/logging.h"
 #include "include/modules/mount.h"
@@ -40,50 +38,30 @@
 // Type Definitions
 
 // Variable Definitions
-struct mntent _foundEntires[MDL_MOUNT_MAX_FSTAB_ENTRIES];
 
 // Main
 
 // Methods
 void mount_rootfs()
 {
-    // Read fstab
-    _read_fstab();
+    // Parse the fstab file
+    _parse_fstab();
 
-    // Lookup UUIDs
+    // Map UUIDs to device blocks
 
-    // Mount
+    // Mount devices
 }
 
-void _read_fstab()
+void _parse_fstab()
 {
-    // Open /etc/fstab
-    FILE *fstabStream = setmntent(MDL_MOUNT_FSTAB_FILEPATH, "r");
+    // Allocate a new filesystem table
+    struct libmnt_table *table = mnt_new_table_from_file(MOD_MOUNT_FSTAB_FILEPATH);
 
-    // Set buffer index
-    int currentIndex = 0;
-
-    // Iterate through the fstab
-    struct mntent *entry;
-    while (((entry = getmntent(fstabStream)) != NULL) && (currentIndex != MDL_MOUNT_MAX_FSTAB_ENTRIES))
+    // Search for a UUID entries
+    struct libmnt_fs *currentEntry;
+    while ((currentEntry = mnt_table_find_source(table, "UUID", MNT_ITER_FORWARD)) != NULL)
     {
-        // Add the entry
-        _foundEntires[currentIndex] = *entry;
-
-        // Increment
-        currentIndex++;
-    }
-
-    // Log
-    for (int i = 0; i < (sizeof(_foundEntires) / sizeof(struct mntent)); i++)
-    {
-        // Allocate message
-        char msg[256];
-
-        // Format message
-        sprintf(msg, "Name: %s || Dir: %s", _foundEntires[i].mnt_fsname, _foundEntires[i].mnt_dir);
-
-        // Log
-        log_msg(msg);
+        // Log the filesystem type
+        log_msg(mnt_fs_get_fstype(currentEntry));
     }
 }

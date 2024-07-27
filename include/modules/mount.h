@@ -19,8 +19,7 @@
 // ----------------------------------------------------------------
 
 // Macro Definitions
-#define MDL_MOUNT_FSTAB_FILEPATH "/etc/fstab"
-#define MDL_MOUNT_MAX_FSTAB_ENTRIES 16
+#define MOD_MOUNT_FSTAB_FILEPATH "/etc/fstab"
 
 // File Docstring
 // --------------------------------
@@ -44,16 +43,16 @@
 
 // Methods
 /**
- * Mounts the root filesystem as defined in /etc/fstab.
+ * Mounts the root filesystem as defined in ``/etc/fstab``.
  *
  * @return void
  */
 void mount_rootfs();
 
 /**
- * Reads the fstab file and stores the
- * found entries.
+ * Parses the fstab file extracting important details
+ * like drive UUID, mount paths, and mount options.
  *
  * @return void
  */
-void _read_fstab();
+void _parse_fstab();
