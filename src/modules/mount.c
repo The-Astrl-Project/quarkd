@@ -78,7 +78,7 @@ void _parse_fstab()
     }
 
     // Parse the fstab file and load it into memory
-    int err = mnt_table_parse_fstab(table, NULL);
+    err = mnt_table_parse_fstab(table, NULL);
 
     // Check for any parsing errors
     if (err < 0)
