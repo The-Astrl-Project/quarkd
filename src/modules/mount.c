@@ -55,8 +55,27 @@ void mount_rootfs()
 
 void _parse_fstab()
 {
+    // Function scope error placeholder
+    int err;
+
     // Allocate a new filesystem table struct
     struct libmnt_table *table = mnt_new_table();
+
+    // Allocate a new cache
+    struct libmnt_cache *tableCache = mnt_new_cache();
+
+    // Set the cache reference
+    err = mnt_table_set_cache(table, tableCache);
+
+    // Check for any allocation errors
+    if (err < 0 || tableCache == NULL)
+    {
+        // Log
+        log_err("Error while setting fstab cache || Possible limited RAM situation?");
+
+        // Panic
+        PANIC(-1);
+    }
 
     // Parse the fstab file and load it into memory
     int err = mnt_table_parse_fstab(table, NULL);
@@ -65,7 +84,7 @@ void _parse_fstab()
     if (err < 0)
     {
         // Log
-        log_wrn("Error while parsing /etc/fstab");
+        log_err("Error while parsing /etc/fstab || Possible malformed /etc/fstab?");
 
         // Exit
         PANIC(-1);
@@ -73,12 +92,12 @@ void _parse_fstab()
 
     // Print out all found UUIDs
     struct libmnt_fs *entry;
-    while ((entry = mnt_table_find_srcpath(table, "UUID", MNT_ITER_FORWARD)) != NULL)
+    while ((entry = mnt_table_find_source(table, "UUID", MNT_ITER_FORWARD)) != NULL)
     {
         // Print
         log_msg(mnt_fs_get_fstype(entry));
     }
 
     // Log
-    log_msg("Done?");
+    log_msg("MNT: Step 1 Finished");
 }
