@@ -64,6 +64,9 @@ void _parse_fstab()
     // Allocate a new cache
     struct libmnt_cache *tableCache = mnt_new_cache();
 
+    // Allocate a new iterator
+    struct libmnt_iter *tableIterator = mnt_new_iter(MNT_ITER_FORWARD);
+
     // Set the cache reference
     err = mnt_table_set_cache(table, tableCache);
 
@@ -78,7 +81,7 @@ void _parse_fstab()
     }
 
     // Parse the fstab file and load it into memory
-    err = mnt_table_parse_fstab(table, NULL);
+    err = mnt_table_parse_fstab(table, MOD_MOUNT_FSTAB_FILEPATH);
 
     // Check for any parsing errors
     if (err < 0)
@@ -90,14 +93,30 @@ void _parse_fstab()
         PANIC(-1);
     }
 
-    // Print out all found UUIDs
+    // Print it out all found UUIDs
     struct libmnt_fs *entry;
-    while ((entry = mnt_table_find_source(table, "UUID", MNT_ITER_FORWARD)) != NULL)
+    while (mnt_table_next_fs(table, tableIterator, &entry) == 0)
     {
-        // Print
-        log_msg(mnt_fs_get_fstype(entry));
+        // Allocate NAME and VALUE placeholders
+        const char *tag, *value;
+
+        // Get the tag and value
+        if (mnt_fs_get_tag(entry, &tag, &value) == 0)
+        {
+            // Next entry
+            continue;
+        }
+
+        // Log
+        log_msg(tag);
+        log_msg(value);
     }
 
+    // Clean up
+    mnt_unref_table(table);
+    mnt_unref_cache(tableCache);
+    mnt_free_iter(tableIterator);
+
     // Log
-    log_msg("MNT: Step 1 Finished");
+    log_msg("End");
 }
