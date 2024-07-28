@@ -78,4 +78,7 @@ void _parse_fstab()
         // Print
         log_msg(mnt_fs_get_fstype(entry));
     }
+
+    // Log
+    log_msg("Done?");
 }
