@@ -31,4 +31,9 @@ clang = meson.get_compiler('c')
 libmount = clang.find_library('libmount')
 
 # Project Executable
-executable('quarkd', source_files, include_directories: include_directory, dependencies: [libmount])
+executable(
+    'quarkd',
+    source_files,
+    include_directories: include_directory,
+    dependencies: [libmount],
+)

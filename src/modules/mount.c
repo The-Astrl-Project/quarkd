@@ -13,6 +13,7 @@
 // ----------------------------------------------------------------
 #include <libmount/libmount.h>
 // ---
+#include "include/utils/panic.h"
 #include "include/utils/logging.h"
 #include "include/modules/mount.h"
 // ---
@@ -54,14 +55,27 @@ void mount_rootfs()
 
 void _parse_fstab()
 {
-    // Allocate a new filesystem table
-    struct libmnt_table *table = mnt_new_table_from_file(MOD_MOUNT_FSTAB_FILEPATH);
+    // Allocate a new filesystem table struct
+    struct libmnt_table *table = mnt_new_table();
 
-    // Search for a UUID entries
-    struct libmnt_fs *currentEntry;
-    while ((currentEntry = mnt_table_find_source(table, "UUID", MNT_ITER_FORWARD)) != NULL)
+    // Parse the fstab file and load it into memory
+    int err = mnt_table_parse_fstab(table, NULL);
+
+    // Check for any parsing errors
+    if (err < 0)
     {
-        // Log the filesystem type
-        log_msg(mnt_fs_get_fstype(currentEntry));
+        // Log
+        log_wrn("Error while parsing /etc/fstab");
+
+        // Exit
+        PANIC(-1);
+    }
+
+    // Print out all found UUIDs
+    struct libmnt_fs *entry;
+    while ((entry = mnt_table_find_source(table, "UUID", MNT_ITER_FORWARD)) != NULL)
+    {
+        // Print
+        log_msg(mnt_fs_get_fstype(entry));
     }
 }
