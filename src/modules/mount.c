@@ -73,7 +73,7 @@ void _parse_fstab()
 
     // Print out all found UUIDs
     struct libmnt_fs *entry;
-    while ((entry = mnt_table_find_source(table, "UUID", MNT_ITER_FORWARD)) != NULL)
+    while ((entry = mnt_table_find_srcpath(table, "UUID", MNT_ITER_FORWARD)) != NULL)
     {
         // Print
         log_msg(mnt_fs_get_fstype(entry));
