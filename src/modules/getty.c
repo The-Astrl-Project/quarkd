@@ -64,16 +64,16 @@ void launch_getty()
         break;
     case 0:
         // Log
-        log_msg("Getty process forked");
+        log_msg("Starting getty...");
+
+        // Start a getty
+        execlp("agetty", "agetty", "tty1", (char *)NULL);
 
         // Break
         break;
     default:
         // Log
-        log_msg("Starting getty...");
-
-        // Start a getty
-        execlp("agetty", "agetty", "tty1", (char *)NULL);
+        log_msg("Getty process forked");
 
         // Break
         break;
