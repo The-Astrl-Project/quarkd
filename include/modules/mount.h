@@ -48,11 +48,3 @@
  * @return void
  */
 void mount_rootfs();
-
-/**
- * Parses the fstab file extracting important details
- * like drive UUID, mount paths, and mount options.
- *
- * @return void
- */
-void _parse_fstab();

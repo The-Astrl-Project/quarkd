@@ -11,6 +11,7 @@
 
 // Header Declarations
 // ----------------------------------------------------------------
+#include <string.h>
 #include <libmount/libmount.h>
 // ---
 #include "include/utils/panic.h"
@@ -45,78 +46,87 @@
 // Methods
 void mount_rootfs()
 {
-    // Parse the fstab file
-    _parse_fstab();
+    // Function scope errno placeholder
+    int errno;
 
-    // Map UUIDs to device blocks
-
-    // Mount devices
-}
-
-void _parse_fstab()
-{
-    // Function scope error placeholder
-    int err;
-
-    // Allocate a new filesystem table struct
+    // Instance a new filesystem table
     struct libmnt_table *table = mnt_new_table();
 
-    // Allocate a new cache
-    struct libmnt_cache *tableCache = mnt_new_cache();
+    // Instance a new mount context
+    struct libmnt_context *context = mnt_new_context();
 
-    // Allocate a new iterator
-    struct libmnt_iter *tableIterator = mnt_new_iter(MNT_ITER_FORWARD);
+    // Instance a new iterator
+    struct libmnt_iter *iterator = mnt_new_iter(MNT_ITER_FORWARD);
 
-    // Set the cache reference
-    err = mnt_table_set_cache(table, tableCache);
+    // Parse the filesystem table and append new lines to the table pointer
+    errno = mnt_table_parse_fstab(table, MOD_MOUNT_FSTAB_FILEPATH);
 
-    // Check for any allocation errors
-    if (err < 0 || tableCache == NULL)
+    // Check for parsing errors
+    if (errno < 0)
     {
         // Log
-        log_err("Error while setting fstab cache || Possible limited RAM situation?");
+        log_err("Failed to parse /etc/fstab!");
 
         // Panic
         PANIC(-1);
     }
 
-    // Parse the fstab file and load it into memory
-    err = mnt_table_parse_fstab(table, MOD_MOUNT_FSTAB_FILEPATH);
-
-    // Check for any parsing errors
-    if (err < 0)
+    // Reset and set the internal fstab struct in the mount context
+    if (mnt_context_set_fstab(context, NULL) < 0 || mnt_context_set_fstab(context, table) < 0)
     {
         // Log
-        log_err("Error while parsing /etc/fstab || Possible malformed /etc/fstab?");
+        log_err("Failed to set mount context!");
 
-        // Exit
+        // Panic
         PANIC(-1);
     }
 
-    // Print it out all found UUIDs
-    struct libmnt_fs *entry;
-    while (mnt_table_next_fs(table, tableIterator, &entry) == 0)
+    // Mount all found filesystems
+    int *mountReturnCode = NULL;
+    struct libmnt_fs *entry = NULL;
+    while (mnt_context_next_mount(context, iterator, &entry, mountReturnCode, NULL) == 0)
     {
-        // Allocate NAME and VALUE placeholders
-        const char *tag, *value;
+        // Allocate a message buffer for logging
+        char buf[256];
 
-        // Get the tag and value
-        if (mnt_fs_get_tag(entry, &tag, &value) == 0)
+        // Retrieve drive name
+        const char *driveName = mnt_fs_get_source(entry);
+
+        // Check for mounting error
+        if (mountReturnCode > 0)
         {
+            // Format
+            sprintf(buf, "Drive failed to mount (mount error) || %s", driveName);
+
+            // Log
+            log_err(buf);
+
             // Next entry
             continue;
         }
 
+        // Check for miscellaneous errors
+        if (mountReturnCode < 0)
+        {
+            // Format
+            sprintf(buf, "Drive possibly failed to mount (other error) || %s", driveName);
+
+            // Log
+            log_wrn(buf);
+
+            // Next entry
+            continue;
+        }
+
+        // Format
+        sprintf(buf, "Drive successfully mounted || %s", driveName);
+
         // Log
-        log_msg(tag);
-        log_msg(value);
+        log_msg(buf);
     }
 
     // Clean up
     mnt_unref_table(table);
-    mnt_unref_cache(tableCache);
-    mnt_free_iter(tableIterator);
-
-    // Log
-    log_msg("End");
+    mnt_free_context(context);
+    mnt_free_iter(iterator);
 }

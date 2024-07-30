@@ -12,11 +12,10 @@
 // Header Declarations
 // ----------------------------------------------------------------
 #include <unistd.h>
-#include <stdlib.h>
+#include <sys/types.h>
 // ---
-#include "include/init.h"
+#include "include/utils/panic.h"
 #include "include/utils/logging.h"
-#include "include/modules/mount.h"
 #include "include/modules/getty.h"
 // ---
 
@@ -26,10 +25,11 @@
 
 // File Docstring
 // --------------------------------
-// QuarkD || init.c <-> include/init.h
+// QuarkD || modules/getty.c <-> include/modules/getty.h
 //
-// Entrypoint of QuarkD. All QuarkD subsystems are initialized here.
-// This file simply works as an over-engineered "int main".
+// Simple module responsible for launching a TTY. This
+// *could* be a util but this is more of a QuarkD module
+// then a generic utility.
 //
 // @author @MaxineToTheStars <https://github.com/MaxineToTheStars>
 // ----------------------------------------------------------------
@@ -43,28 +43,39 @@
 // Variable Definitions
 
 // Main
-int main(int argc, char **argv)
-{
-    // Instance the logging module
-    logging_initialize();
-
-    // Overwrite the default path
-    setenv("PATH", PATH_DEFAULT, 1);
-
-    // Mount the root filesystem
-    mount_rootfs();
-
-    // Start daemons
-
-    // Launch a getty
-    launch_getty();
-
-    // Stop from killing PID 1
-    while (1)
-    {
-        // Sleep
-        sleep(1);
-    }
-}
 
 // Methods
+void launch_getty()
+{
+    // Fork the process
+    pid_t pid = fork();
+
+    // Check if child
+    switch (pid)
+    {
+    case -1:
+        // Log
+        log_err("Unable to start GETTY process!");
+
+        // Panic
+        PANIC(-1);
+
+        // Break
+        break;
+    case 0:
+        // Log
+        log_msg("Getty process forked");
+
+        // Break
+        break;
+    default:
+        // Log
+        log_msg("Starting getty...");
+
+        // Start a getty
+        execlp("agetty", "agetty", "tty1", (char *)NULL);
+
+        // Break
+        break;
+    }
+}
